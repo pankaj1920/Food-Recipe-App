@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,8 @@ import com.example.recipe.RecipeHomeApi;
 import com.example.recipe.R;
 
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,12 +50,21 @@ public class FoodFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        final View view=inflater.inflate(R.layout.fragment_tab_food, container, false);
+        final View view = inflater.inflate(R.layout.fragment_tab_food, container, false);
 
 
-        CategoryRecycle = (RecyclerView)view.findViewById(R.id.CategoryRecycle);
-        CategoryRecycle.setLayoutManager(new GridLayoutManager(getActivity(),2));
-
+        CategoryRecycle = (RecyclerView) view.findViewById(R.id.CategoryRecycle);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2
+                , LinearLayoutManager.VERTICAL, false);
+        gridLayoutManager.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                if (position == 0) {
+                    return 2;
+                } else return 1;
+            }
+        });
+        CategoryRecycle.setLayoutManager(gridLayoutManager);
         getFoodItem();
 
         return view;
@@ -65,12 +77,18 @@ public class FoodFragment extends Fragment {
             @Override
             public void onResponse(Call<CategoryFragmentResponse> call, Response<CategoryFragmentResponse> response) {
 
-                if (response.isSuccessful() && HttpURLConnection.HTTP_OK==response.code()){
+                if (response.isSuccessful() && HttpURLConnection.HTTP_OK == response.code()) {
 
                     CategoryFragmentResponse psb = response.body();
-                    adapter = new CategoryRecyclerAdapter(psb.getMeals());
+                    List<CategoryFragment> sdf = new ArrayList<>();
+                    CategoryFragment sd = new CategoryFragment();
+                    sd.setType("Bannner");
+                    sd.setStrMealThumb("https://www.themealdb.com/images/category/beef.png");
+                    sdf.add(sd);
+                    sdf.addAll(psb.getMeals());
+                    adapter = new CategoryRecyclerAdapter(sdf);
                     CategoryRecycle.setAdapter(adapter);
-                }else {
+                } else {
                     Toast.makeText(getActivity(), "Uncessfull", Toast.LENGTH_SHORT).show();
                 }
             }

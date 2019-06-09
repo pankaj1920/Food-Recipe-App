@@ -4,6 +4,7 @@ public class CategoryFragment {
     private String strMeal;
     private String strMealThumb;
     private String idMeal;
+    private String type="";
 
     public String getStrMeal() {
         return strMeal;
@@ -27,5 +28,13 @@ public class CategoryFragment {
 
     public void setIdMeal(String idMeal) {
         this.idMeal = idMeal;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 }

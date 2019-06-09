@@ -11,13 +11,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.recipe.Activity.DetailActivity;
-import com.example.recipe.Json.DetailRecipe.DetailRecipe;
 import com.example.recipe.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
-public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecyclerAdapter.Cat_VH> {
+public class CategoryRecyclerAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     List<CategoryFragment> food_item;
 
@@ -26,23 +25,46 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         this.food_item = food_item;
     }
 
-    @NonNull
     @Override
-    public Cat_VH onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-    View view = LayoutInflater.from(viewGroup.getContext())
-            .inflate(R.layout.category_list_items,viewGroup,false);
-    return new Cat_VH(view);
+    public int getItemViewType(int position) {
+        CategoryFragment data = food_item.get(position);
+        String ciew = data.getType();
+        if (ciew == null) {
+            ciew = "";
+        }
+
+        if (ciew.isEmpty()) {
+            return R.layout.category_list_items;
+        } else {
+            return R.layout.item_banner;
+        }
     }
 
     @Override
-    public void onBindViewHolder(@NonNull Cat_VH cat_vh, int i) {
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext())
+                .inflate(i, viewGroup, false);
+        if (i == R.layout.category_list_items) {
+            return new Cat_VH(view);
+        } else {
+            return new BannerVH(view);
+        }
+    }
 
-        CategoryFragment  categoryFragment =  food_item.get(i);
-        cat_vh.dish_title.setText(categoryFragment.getStrMeal());
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder cat_vh, int i) {
 
-
-        Picasso.with(cat_vh.dish_title.getContext()).load(food_item.get(i).getStrMealThumb())
-                .into(cat_vh.dish_img);
+        if (food_item.get(i).getType().isEmpty()) {
+            Cat_VH hols = (Cat_VH) cat_vh;
+            CategoryFragment categoryFragment = food_item.get(i);
+            hols.dish_title.setText(categoryFragment.getStrMeal());
+            Picasso.with(hols.dish_title.getContext()).load(food_item.get(i).getStrMealThumb())
+                    .into(hols.dish_img);
+        } else {
+            BannerVH hols = (BannerVH) cat_vh;
+            Picasso.with(hols.des_img.getContext()).load(food_item.get(i).getStrMealThumb())
+                    .into(hols.des_img);
+        }
     }
 
     @Override
@@ -50,16 +72,16 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         return food_item.size();
     }
 
-    class Cat_VH extends RecyclerView.ViewHolder{
-        ImageView des_img,dish_img;
-        TextView des_title,dish_title;
+    class Cat_VH extends RecyclerView.ViewHolder {
+        ImageView des_img, dish_img;
+        TextView des_title, dish_title;
+
         public Cat_VH(@NonNull final View itemView) {
             super(itemView);
 
-            des_img= (ImageView)itemView.findViewById(R.id.des_img);
-            dish_img= (ImageView)itemView.findViewById(R.id.dish_img);
-            des_title=(TextView) itemView.findViewById(R.id.des_title);
-            dish_title=(TextView)itemView.findViewById(R.id.dish_title);
+            dish_img = (ImageView) itemView.findViewById(R.id.dish_img);
+            des_title = (TextView) itemView.findViewById(R.id.des_title);
+            dish_title = (TextView) itemView.findViewById(R.id.dish_title);
 
             dish_img.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -71,12 +93,21 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
 
                     Intent intent = new Intent(itemView.getContext(), DetailActivity.class);
 
-                    intent.putExtra("EXTRA_SESSION_ID",dishPosition);
+                    intent.putExtra("EXTRA_SESSION_ID", dishPosition);
 
                     itemView.getContext().startActivity(intent);
 
                 }
             });
+        }
+    }
+
+    class BannerVH extends RecyclerView.ViewHolder {
+        ImageView des_img, dish_img;
+
+        public BannerVH(@NonNull final View itemView) {
+            super(itemView);
+            des_img = (ImageView) itemView.findViewById(R.id.des_img);
         }
     }
 }
